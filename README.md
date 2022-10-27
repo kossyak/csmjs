@@ -26,7 +26,7 @@ const root = document.querySelector('#root')
 const csm = new Csm(root)
 csm.create(project)
 ```
-
+## Параметры состояния
 ### permit
 Активирует состояние, только если все элементы присутствуют в контексте.
 
