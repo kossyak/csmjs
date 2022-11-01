@@ -1,4 +1,4 @@
-const csm = {
+window.csm = {
   context: [],
   actions: {},
   events: {},
@@ -92,4 +92,3 @@ const csm = {
     }
   }
 }
-export { csm }

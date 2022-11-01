@@ -1,11 +1,10 @@
 require('esbuild').build({
     entryPoints: [`./csm.js`],
-    format: 'esm', // 'iife',
+    format: 'cjs', // 'iife',
     bundle: true,
     minify: true,
     // sourcemap: true,
-    // splitting: true,
     globalName: 'csm',
     outfile: `bundlers/csm.js`,
-    target: ['esnext']
+    target: ['esnext'],
 }).catch(() => process.exit(1))
