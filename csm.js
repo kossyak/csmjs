@@ -1,4 +1,4 @@
-export default {
+const csm = {
   context: [],
   actions: {},
   events: {},
@@ -92,3 +92,4 @@ export default {
     }
   }
 }
+export { csm }
