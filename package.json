@@ -1,0 +1,22 @@
+{
+  "name": "csm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "csm.js",
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kossyak/csmjs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kossyak/csmjs/issues"
+  },
+  "homepage": "https://github.com/kossyak/csmjs#readme",
+  "dependencies": {
+    "esbuild": "^0.15.12"
+  }
+}
