@@ -1,16 +1,18 @@
-window.csm = {
+export default {
   context: [],
-  actions: {},
+  current: [],
+  state: {},
   events: {},
   create(entry) {
-    this.context = entry.context || []
-    this.actions = entry.state
+    this.context = this.value(entry.context)
+    this.state = entry.state
     this.emit('_create', {...entry})
+    this.context.forEach(key => this.emit(key, this.context))
     this.update()
   },
   destroy() {
     this.context = []
-    this.actions = {}
+    this.state = {}
     this.emit('_destroy', this.context)
   },
   off() {
@@ -20,15 +22,17 @@ window.csm = {
     if (!v) return []
     return Array.isArray(v) ? v : [v]
   },
-  action(key) {
-    const action = this.actions[key]
+  async action(key, data) {
+    const action = this.state[key]
     if (action) {
       if (!this.context.includes(key)) this.context.push(key)
       this.push(action)
       this.delete(action)
       this.set(action)
-      this.update(key)
     }
+    let fl = this.current.includes(key)
+    this.update(key)
+    if (fl) await this.emit(key, this.context, data)
   },
   set(action) {
     if(action.set) this.context = this.value(action.set)
@@ -56,7 +60,7 @@ window.csm = {
   },
   update(trigger) {
     const actions = []
-    for (const [key, action] of Object.entries(this.actions)) {
+    for (const [key, action] of Object.entries(this.state)) {
       if (!this.tabu(action)) {
         let count = 0
         const permit = [...this.value(action.pop), ...this.value(action.permit)]
@@ -68,14 +72,16 @@ window.csm = {
         } else actions.push(key)
       }
     }
-    actions.forEach(key => this.emit(key, this.context))
-    this.emit('_change', { actions, trigger, context: this.context })
+    this.emit('_change', {actions, trigger, context: this.context})
+    if (actions.toString() !== this.current.toString()) {
+      this.current = [...actions]
+    }
   },
-  emit(key, context) {
+  async emit(key, context, data) {
     if (!this.events[key]) return
     const callbacks = this.events[key]
     for (const callback of callbacks) {
-      callback(context)
+      await callback(context, data)
     }
   },
   on(key, callback) {
@@ -83,7 +89,9 @@ window.csm = {
       this.events[key] = new Set()
     }
     const callbacks = this.events[key]
-    callbacks.add(callback)
+    if (!callbacks.has(callback)) {
+      callbacks.add(callback)
+    }
     return () => {
       callbacks.delete(callback)
       if (callbacks.size === 0) {
