@@ -1,3 +1,6 @@
+https://cdn.jsdelivr.net/gh/kossyak/csmjs@latest/csm.min.js
+https://purge.jsdelivr.net/
+
 #Context State Machine
 
 Example:
