@@ -1,5 +1,7 @@
 https://cdn.jsdelivr.net/gh/kossyak/csmjs@latest/csm.min.js
 
+![csm](https://user-images.githubusercontent.com/68551616/217036983-87cffa3b-0e88-4efc-ae8f-6ae2ab266b28.svg)
+
 # Context State Machine
 
 Example:
