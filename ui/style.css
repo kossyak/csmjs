@@ -1,0 +1,148 @@
+.csm-column {
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 400px;
+    font-family: monospace;
+    background-color: white;
+}
+.csm-header {
+    border: 2px solid #dbdbdb;
+    background-color: white;
+    padding: 20px;
+    font-size: 13px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+}
+.csm-header nav {
+    display: flex;
+    justify-content: flex-end;
+}
+.csm-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+.csm-column .actions {
+    margin-top: -2px;
+    display: flex;
+    flex-direction: column;
+}
+.notify {
+    flex: 1;
+    padding: 15px 0;
+    cursor: pointer;
+}
+.csm-hide {
+    opacity: .8;
+}
+.csm-column .item:not(.csm-hide) {
+    order: 0;
+}
+h1 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: normal;
+    text-align: center;
+    letter-spacing: -0.003em;
+    text-transform: capitalize;
+}
+.csm-column .item {
+    width: 100%;
+    order: 1;
+    background-color: #202020;
+    border-bottom: 2px solid #333;
+    font-family: monospace;
+    font-size: 15px;
+    cursor: pointer;
+    transition: padding .12s;
+    border-radius: 1px;
+}
+.csm-column .item button {
+    position: relative;
+    width: 100%;
+    color: white;
+    padding: 15px 20px;
+}
+.csm-column .item a {
+    opacity: .3;
+}
+.csm-column .detailsContent {
+    color: #aaa;
+    padding: 20px;
+    font-size: 13px;
+}
+.csm-column .detailsContent p {
+    margin: 0 0 10px 0;
+}
+.csm-column .detailsContent:empty {
+    display: none;
+}
+.csm-column .item button:focus {
+    outline: 0;
+    padding-left: 26px;
+}
+.csm-column .item:hover {
+    background-color: #333;
+}
+
+.csm-column .hot {
+    opacity: .3;
+}
+.csm-column .hot svg {
+    height: 18px;
+    width: 18px;
+}
+.csm-column .prev {
+    transform: rotate(-180deg);
+}
+.csm-column .csm-active {
+    opacity: 1;
+}
+/* ui */
+button {
+    font-family: inherit;
+    text-align: left;
+    border: 0;
+    background: transparent;
+}
+.fx {
+    display: flex;
+}
+
+.LstArrow:disabled {
+    opacity: .25;
+}
+.details {
+    display: block;
+    padding: 18px 18px;
+    margin-right: 10px;
+    color: white;
+    border-radius: 50%;
+    transition: transform .12s;
+}
+.LstArrow:after {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    box-sizing: border-box;
+    background-color: black;
+    clip-path: polygon(30% 0, 20% 10%, 60% 50%, 20% 90%, 30% 100%, 80% 50%);
+}
+.LstClose:after {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    clip-path: polygon(10% 0, 0 10%, 40% 50%, 0 90%, 10% 100%, 50% 60%, 90% 100%, 100% 90%, 60% 50%, 100% 10%, 90% 0, 50% 40%);
+}
+.LstClose:after {
+    width: 10px;
+    height: 10px;
+}
+
+.LstClose:not(.csm-active) {
+    transform: rotate(45deg);
+}
