@@ -1,8 +1,9 @@
-https://cdn.jsdelivr.net/gh/kossyak/csmjs@latest/csm.min.js
 
 ![csm](https://user-images.githubusercontent.com/68551616/217037244-fb68e32e-d4df-4c56-b84d-f947b2bdc9bf.svg)
 
 # Context State Machine
+
+https://cdn.jsdelivr.net/gh/kossyak/csmjs@latest/csm.min.js
 
 Example:
 ```js
