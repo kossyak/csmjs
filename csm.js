@@ -1,112 +1,117 @@
-export default {
-  context: [],
-  current: [],
-  actions: {},
-  state: {},
-  events: {},
-  async create(entry) {
+export default class CSM {
+  constructor(entry) {
     this.context = this.value(entry.context)
     this.actions = entry.actions
     this.level = entry.actions
-    await this.emit('_create', {...entry})
-    this.context.forEach(key => this.emit(key, this.context))
-    this.update()
-  },
+    this.current = []
+    this.events = {}
+  }
+  async init() {
+    const { action, opened, closed } = this.update()
+    await this.emit('--init', { action, opened, closed, context: this.context, level: this.level })
+  }
   destroy() {
+    this.current = []
     this.context = []
     this.actions = {}
     this.level = {}
-    this.emit('_destroy', this.context)
-  },
+    this.emit('--destroy', {})
+  }
   off(key) {
     if (key) {
       delete this.events[key]
     } else this.events = {}
-  },
+  }
   value(v) {
     if (!v) return []
     return Array.isArray(v) ? v : [v]
-  },
+  }
   deliver(path) {
     let i, target = {...this.actions}
     for (i = 0; i < path.length - 1; i++) target = target[path[i]]
     return target[path[i]]
-  },
-  to(action) {
-    if (action.to === '/') {
+  }
+  to(target) {
+    if (target.to === '/') {
       this.level = this.actions
     } else {
-      const path = action.to.slice(1).split('/')
+      const path = target.to.slice(1).split('/')
       this.level = this.deliver(path).actions
     }
-  },
-  async action(key, data) {
-    const action = {...this.level[key]}
-    if (action.to) {
-      this.to(action)
-    } else if (action.actions) this.level = action.actions
-    if (action) {
+  }
+  async do(key, data) {
+    let closed = []
+    const target = {...this.level[key]}
+    if (target.to) {
+      this.to(target)
+    } else if (target.actions) this.level = target.actions
+    if (target) {
       if (!this.context.includes(key)) this.context.push(key)
-      this.push(action)
-      this.delete(action)
-      this.set(action)
+      this.add(target)
+      closed = this.remove(target)
+      this.set(target)
     }
     let fl = this.current.includes(key)
-    this.update(key)
-    if (fl) await this.emit(key, this.context, data)
-  },
-  set(action) {
-    if(action.set) this.context = this.value(action.set)
-  },
-  push(action) {
-    if (action.push) {
-      this.value(action.push).forEach(a => {
+    const { action, opened } = this.update(key, closed)
+    if (fl) await this.emit('--do-' + key, { action, opened, closed, context: this.context, level: this.level, data })
+    await this.emit('--update', { action, opened, closed, context: this.context, level: this.level })
+    if (target.do) await this.do(target.do, data)
+  }
+  set(target) {
+    if(target.set) this.context = this.value(target.set)
+  }
+  add(target) {
+    if (target.add) {
+      this.value(target.add).forEach(a => {
         if (!this.context.includes(a)) {
           this.context.push(a)
         }
       })
     }
-  },
-  delete(action) {
-    const exclude = [...this.value(action.delete), ...this.value(action.pop)]
+  }
+  remove(target) {
+    const exclude = [...this.value(target.remove), ...this.value(target.toggle)]
     if (exclude.length) {
       const excludeSet = new Set(exclude)
       this.context = this.context.filter(c => !excludeSet.has(c))
     }
-  },
-  match(arr) {
+    return exclude
+  }
+  match(arr, once) {
     let count = 0
     for (const el of arr) {
       if (this.context.includes(el)) count++
     }
-    return arr.length === count
-  },
-  tabu(target) {
-    const arr = this.value(target)
-    return arr.length ? this.match(arr) : false
-  },
-  update(trigger) {
-    const actions = []
-    for (const [key, action] of Object.entries(this.level)) {
-      if (!this.tabu(action.tabu)) {
-        const permit = [...this.value(action.pop), ...this.value(action.permit)]
-        if (trigger && this.level !== this.actions) permit.push(trigger)
-        if (!permit.length) return console.error('permit not found for ' + key)
-        this.match(permit) && actions.push(key)
+    return once ? Boolean(count) : arr.length === count
+  }
+  excludes(value) {
+    const arr = this.value(value)
+    return arr.length ? this.match(arr, true) : false
+  }
+  update(action, closed = []) {
+    const opened = []
+    for (const [key, target] of Object.entries(this.level)) {
+      if (!this.excludes(target.excludes)) {
+        const contains = [...this.value(target.toggle), ...this.value(target.contains)]
+        if (action && this.level !== this.actions) contains.push(action)
+        if (!contains.length) return console.error(`"${ key }" is not contained in the context`)
+        if (this.match(contains)) {
+          opened.push(key)
+          this.emit('--open-' + key, { action, opened, closed, context: this.context, level: this.level })
+        }
       }
     }
-    this.emit('_change', {level: this.level, actions, trigger, context: this.context})
-    if (actions.toString() !== this.current.toString()) {
-      this.current = [...actions]
-    }
-  },
+    closed.forEach(c => this.emit('--close-' + c, { action, opened, closed, context: this.context, level: this.level }))
+    if (opened.toString() !== this.current.toString()) this.current = [...opened]
+    return { action, opened, closed }
+  }
   async emit(key, context, data) {
     if (!this.events[key]) return
     const callbacks = this.events[key]
     for await (const callback of callbacks) {
       await callback(context, data)
     }
-  },
+  }
   on(key, callback) {
     if (!this.events[key]) {
       this.events[key] = new Set()
